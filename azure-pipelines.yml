@@ -51,7 +51,7 @@ stages:
     - task: HelmDeploy@0
       inputs:
         command: 'package'
-        chartPath: '/dist'
+        chartPath: 'shubham-chart'
         chartVersion: '1.0'
     
     - task: PublishBuildArtifacts@1
