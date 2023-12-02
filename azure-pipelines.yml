@@ -30,18 +30,32 @@ stages:
         mavenAuthenticateFeed: false
         effectivePomSkip: false
         sonarQubeRunAnalysis: false
+    
     - task: Docker@2
-      displayName: Build an image
       inputs:
-        command: build
-        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-        repository: 'docker-local'
-        tags: |
-          $(tag)
-    - task: JFrogDocker@1
+        containerRegistry: 'ACR'
+        repository: 'shubhamg7495'
+        command: 'build'
+        Dockerfile: '**/Dockerfile'
+    - task: Docker@2
       inputs:
-        command: 'Push'
-        artifactoryConnection: 'Arti'
-        threads: '3'
-        skipLogin: false
-        imageName: ""
+        containerRegistry: 'ACR'
+        repository: 'shubhamg7495'
+        command: 'push'
+    
+    - task: HelmInstaller@0
+      inputs:
+        helmVersion: '2.14.1'
+        installKubectl: true
+
+    - task: HelmDeploy@0
+      inputs:
+        command: 'package'
+        chartPath: '/dist'
+        chartVersion: '1.0'
+    
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
